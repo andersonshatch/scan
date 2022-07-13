@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+
+      # steps to build the artifact you want to scan
+      # -name: Build Project
+      # ...
+      # Scan Artifact    
+      - name: Contrast Scan Action
+        uses: Contrast-Security-OSS/contrastscan-action@v2
+        with:
+          artifact: terracotta-bank-servlet-0.0.1-SNAPSHOT.war
+          apiKey: ${{ secrets.CONTRAST_API_KEY }}
+          orgId: ${{ secrets.CONTRAST_ORGANIZATION_ID }}
+          authHeader: ${{ secrets.CONTRAST_AUTH_HEADER }}
+          apiUrl: https://apptwo.contrastsecurity.com
+          projectName: andersonshatch-ContrastScanPipeline
+      #Upload the results to GitHub      
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: results.sarif
